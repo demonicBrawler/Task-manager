@@ -1,9 +1,10 @@
 const express = require("express");
-const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const cors = require("cors");
 require("dotenv").config();
+
+const app = express();
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -12,10 +13,21 @@ app.use(express.json());
 app.use(cors());
 
 const mongoUrl = process.env.MONGODB_URL;
-mongoose.connect(mongoUrl, err => {
-  if (err) throw err;
-  console.log("Mongodb connected...");
-});
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(mongoUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("MongoDB connected...");
+  } catch (err) {
+    console.error("Error connecting to MongoDB:", err.message);
+    process.exit(1);
+  }
+};
+
+connectDB();
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
